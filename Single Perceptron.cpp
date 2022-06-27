@@ -1,6 +1,8 @@
-#include <iostream>
 #include <exception>
+#include <iostream>
+#include <stdlib.h>
 #include <math.h>
+#include <time.h>
 using namespace std;
 
 // Useful Exceptions
@@ -23,9 +25,9 @@ struct MatrixAccessException : exception {
 /*
 	Matrix is stored as a single long array storing elements row-wise
 	Eg:
-		[5 7 9]
-		[2 4 5]
-	is stored as [5 7 9 2 4 5]
+		{{5, 7, 9},
+		{2, 4, 5}}
+	is stored as {5, 7, 9, 2, 4, 5}
 */
 
 class Matrix {
@@ -36,17 +38,20 @@ class Matrix {
 	public:
 	// Constructors
 	Matrix() {
-		this = new Matrix(5);
+		Matrix(5);
 	}
 	Matrix(int n) {
 		rows = n;
 		cols = 1;
 
-		data = new t[rows * cols];
+		data = new float[rows * cols];
 	}
 	Matrix(int r, int c) {
 		rows = r;
-		c *(r - 1)
+		c *(r - 1);
+	}
+	Matrix(int* arr[], int r, int c) {
+
 	}
 
 	// Basic operations
@@ -57,7 +62,7 @@ class Matrix {
 	}
 	Matrix operator+(Matrix mat) {
 		if(rows != mat.rows || cols != mat.cols) {
-			throw MatrixOperationException;
+			throw new MatrixOperationException();
 		}
 		Matrix ret = mat;
 		for(int i = 0; i < rows * cols; i++) {
@@ -67,7 +72,7 @@ class Matrix {
 	}
 	Matrix operator-(Matrix mat) {
 		if(rows != mat.rows || cols != mat.cols) {
-			throw MatrixOperationException;
+			throw new MatrixOperationException();
 		}
 		Matrix ret = mat;
 		for(int i = 0; i < rows * cols; i++) {
@@ -77,10 +82,10 @@ class Matrix {
 	}
 	Matrix operator*(Matrix mat) {
 		if(cols != mat.rows) {
-			throw MatrixOperationException;
+			throw new MatrixOperationException();
 		}
 		int temp;
-		Matrix ret = new Matrix(rows, mat.cols);
+		Matrix ret = Matrix(rows, mat.cols);
 
 		for(int i = 0; i < ret.rows; i++) {
 			for(int j = 0; j < ret.cols; j++) {
@@ -89,7 +94,7 @@ class Matrix {
 					temp += get(i, k) * mat.get(k, j);
 				}
 
-				ret.set(i, j) = temp;
+				ret.set(temp, i, j);
 			}
 		}
 
@@ -98,11 +103,11 @@ class Matrix {
 
 	// Other Operations
 	Matrix transpose() { 
-		Matrix ret = new Matrix(cols, rows);
+		Matrix ret = Matrix(cols, rows);
 
 		for(int i = 0; i < rows; i++) {
 			for(int j = 0; j < cols; j++) {
-				ret.set(j, i) = get(i, j);
+				ret.set(get(i, j), j, i);
 			}
 		}
 
@@ -112,14 +117,14 @@ class Matrix {
 	// Location Access operation
 	float get(int r, int c) {
 		if(r >= rows || r < 0 || c >= cols || c < 0) {
-			throw MatrixAccessException;
+			throw new MatrixAccessException();
 		}
 		int i = r * cols + c;
 		return data[i];
 	}
 	void set(float value, int r, int c) {
 		if(r >= rows || r < 0 || c >= cols || c < 0) {
-			throw MatrixAccessException;
+			throw new MatrixAccessException();
 		}
 		int i = r * cols + c;
 		data[i] = value;
@@ -128,18 +133,48 @@ class Matrix {
 
 class perceptron {
 	private:
-	Matrix<float> inputs, weights, output;
-	float bias;
+	Matrix inputs, weights, output;
+	float bias, learningRate;
+	float error;
+
+	int inputSize;
 
 	public:
+	// Constructors
 	perceptron() {
-		inputs = Matrix<float>(5);
-		weights =  Matrix<float>(5);
-		bias = 0;
+		inputSize = 4;
+		perceptron(inputSize);
 	}
-
 	perceptron(int inSize) {
+		inputSize = inSize;
+		inputs = Matrix(inputSize);
+		weights = Matrix(1, inputSize);
+		output = Matrix(1, 1);
 
+		srand(time(NULL));
+
+		for(int i = 0; i < inputSize; i++) {
+			weights.set((float)rand() / (float)RAND_MAX, 0, i); 
+		}
+		bias = (float)rand() / (float)RAND_MAX;
 	}
 
+	// Helper Functions
+	float sigmoidActivation(float x) {
+		return 1.0 / (1.0 + expf(-x));
+	}
+	float sigmoidDerivative(float x) {
+		return x * (1.0 - x);
+	}
+
+	// ML Essential Functions - INCOMPLETE
+	void predictSingle(Matrix input) {
+
+	}
+	void trainSingle(Matrix input) {
+
+	}
+	void train(Matrix input[]) {
+
+	}
 };
